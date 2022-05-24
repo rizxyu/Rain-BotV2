@@ -112,8 +112,8 @@ npm update
 * Download And Install ImageMagick [`Click Here`](https://imagemagick.org/script/download.php)
 
 ```bash
-git clone https://github.com/BochilGaming/games-wabot -b multi-device
-cd games-wabot
+git clone https://github.com/Rizxyu/Rain-BotV2
+cd Rain-BotV2
 npm install
 npm update
 ```
