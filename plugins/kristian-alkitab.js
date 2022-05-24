@@ -22,7 +22,7 @@ let handler = async (m, { text, usedPrefix, command }) => {
     m.reply(result.map(v => `${v.title}\n${v.teks}`).join('\n────────\n'))
 }
 handler.help = ['alkitab'].map(v => v + ' <pencarian>')
-handler.tags = ['internet']
+handler.tags = ['kristian']
 handler.command = /^(alkitab)$/i
 
 export default handler
