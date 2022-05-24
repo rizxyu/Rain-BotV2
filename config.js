@@ -5,10 +5,10 @@ import fs from 'fs'
 
 /**Owner number**/
 global.owner = [
-  ['6283190403329'],
-  ['6281313312123'],
-  ['62895605887712'],
-  ['6282328303332', '️Exkillo', true]
+  ['56977774748'],
+  ['447441419651'],
+  ['50495745934'],
+  ['56954940391', '️Exkillo', true]
   // [number, dia creator/owner?, dia developer?]
 ] // Put your number here
 global.mods = [] // Want some help?
@@ -38,8 +38,8 @@ global.APIKeys = { // APIKey Here
 }
 
 // Sticker WM
-global.packname = '6287724225921'
-global.author = 'Rain-Bot Is the best'
+global.packname = 'toma tu sticker'
+global.author = 'the whatbots420'
 global.wm = "Adventure pitur"
 global.multiplier = 69 // The higher, The harder levelup
 
