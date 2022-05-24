@@ -47,7 +47,32 @@ Edit the required value in [`config.js`](https://github.com/Rizxyu/Rain-BotV2/bl
 not for termux
 ```
 
+### FOR TERMUX USER
+1. Type mentioned below given commands one by one in Termux.
+```sh
+$ pkg upgrade && pkg update
+$ pkg install git -y
+$ pkg install nodejs -y
+$ pkg install ffmpeg -y
+$ pkg install imagemagick -y
+$ git clone https://github.com/BochilGaming/games-wabot -b multi-device
+$ cd games-wabot
+$ npm i 
+```
+If error try using yarn instead of npm, see [here](https://github.com/BochilGaming/games-wabot/tree/multi-device#if-npm-install-failed--try--using-yarn-instead-of-npm)
+```sh
+$ node .
+```
+2. Wait for bot starting...
+3. Scan QR code from 2nd device. (Go to whatsapp > Linked Devices > Join `Multi Device Beta` > Click on `link device`)
+4. Now your bot is ready to rock n roll.
 
+#### If npm install failed, try using yarn instead of npm
+```sh
+$ pkg install yarn -y
+$ yarn install
+```
+---------
 ## INSTALL ON TERMUX WITH UBUNTU
 
 [ INSTALLING UBUNTU ]
