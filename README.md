@@ -56,7 +56,7 @@ $ pkg install nodejs -y
 $ pkg install ffmpeg -y
 $ pkg install imagemagick -y
 $ git clone https://github.com/Rizxyu/Rain-BotV2
-$ cd games-wabot
+$ cd Rain-BotV2
 $ npm i 
 ```
 
