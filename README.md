@@ -55,11 +55,11 @@ $ pkg install git -y
 $ pkg install nodejs -y
 $ pkg install ffmpeg -y
 $ pkg install imagemagick -y
-$ git clone https://github.com/BochilGaming/games-wabot -b multi-device
+$ git clone https://github.com/Rizxyu/Rain-BotV2
 $ cd games-wabot
 $ npm i 
 ```
-If error try using yarn instead of npm, see [here](https://github.com/BochilGaming/games-wabot/tree/multi-device#if-npm-install-failed--try--using-yarn-instead-of-npm)
+
 ```sh
 $ node .
 ```
