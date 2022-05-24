@@ -38,6 +38,12 @@ const roles = {
     'Mythic II': 165,
     'Mythic I': 170,
     'Mythic Glory': 175
+    'EMERALD V' : 180,
+    'EMERALD IV' : 185,
+    'EMERALD III' : 190,
+    'EMERALD II' : 195,
+    'EMERALD I' : 200,
+    'THE EMERALD' : 205
 }
 
 export function before(m) {
