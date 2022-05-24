@@ -4,8 +4,8 @@ let handler = async (m, { conn, args }) => {
     if (!mention) throw 'Tag salah satu lah'
     if (!(mention in global.db.data.users)) throw 'User tidak terdaftar dalam DATABASE!!'
     let user = global.db.data.users[mention]
-    if (!user.Banneduser) throw 'User tidak Terbanned!!'
-    user.Banneduser = false
+    if (!user.banned) throw 'User tidak Terbanned!!'
+    user.banned = false
     user.BannedReason = ''
     user.warn = 0
     await m.reply('Berhasil unbanned!!')
