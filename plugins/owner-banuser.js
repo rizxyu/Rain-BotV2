@@ -4,9 +4,9 @@ let handler = async (m, { conn, args }) => {
     if (!mention) throw 'Tag salah satu lah'
     if (!(mention in global.db.data.users)) throw 'User tidak terdaftar dalam DATABASE!!'
     let user = global.db.data.users[mention]
-    if (user.Banned) throw 'User telah terbanned!!'
+    if (user.banned) throw 'User telah terbanned!!'
     let txt = (args.length > 1 ? args.slice(1).join(' ') : '') || '' 
-    user.Banned = true 
+    user.banned = true 
     user.BannedReason = txt 
     m.reply('Berhasil Banned USER!')
     m.reply('*Kamu dibanned oleh OWNER Atau MODERATOR!!*\n *HUBUNGI* \n' + global.owner.map((v, i) => '*Owner ' + (i + 1) + ':* wa.me/' + v).join('\n') + '\n\n' + global.mods.map((v, i) => '*Moderator ' + (i + 1) + ':* wa.me/' + v).join('\n'), mention)
