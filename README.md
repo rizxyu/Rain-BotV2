@@ -6,7 +6,7 @@
 
 </p>
 <p align="center">
-<a href="#"><img title="RAIN - BOTV2" src="https://img.shields.io/badge/RixleBot-green?colorA=%23ff0000&colorB=%23017e40&style=for-the-badge"></a>
+<a href="#"><img title="RAIN - BOTV2" src="https://img.shields.io/badge/Rainbotv2-green?colorA=%23ff0000&colorB=%23017e40&style=for-the-badge"></a>
 </p>
 <p align="center">
 <a href="https://github.com/Rizxyu"><img title="Rizxyu" src="https://img.shields.io/badge/Author-Rizky-red.svg?style=for-the-badge&logo=github"></a>
