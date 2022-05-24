@@ -1,0 +1,51 @@
+[
+  {
+    "index": 1,
+    "rank": "S++",
+    "misii": "Menaklukan Raja Iblis",
+    "exp": 97838,
+    "crystal": 37
+  },
+  {
+    "index": 2,
+    "rank": "F",
+    "misii": "Mencari Crystal",
+    "exp": 1072,
+    "crystal": 3
+  },
+  {
+    "index": 3,
+    "rank": "S+",
+    "misii": "Taklukan naga Everest",
+    "exp": 79938,
+    "crystal": 24
+  },
+  {
+    "index": 4,
+    "rank": "B+",
+    "misii": "Memusnahkan Desa Goblin",
+    "exp": 5647,
+    "crystal": 9
+  },
+  {
+    "index": 5,
+    "rank": "C+",
+    "misii": "Menyelesaikan Dungeon Berisi Monster Laba laba",
+    "exp": 4837,
+    "crystal": 7
+  },
+  {
+    "index": 6,
+    "rank": "A+",
+    "misii": "Membuat Ramuan Penyembuh penyakit 50 poison",
+    "exp": 26829,
+    "crystal": 15
+  },
+ {
+    "index": 7,
+    "rank": "E+",
+    "misii": "Memungut kristal di dungeon",
+    "exp": 3000,
+    "crystal": 5
+  }
+]
