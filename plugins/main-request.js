@@ -1,22 +1,31 @@
 let handler = async (m, { conn, text, command }) => {
-    conn.req = conn.req ? conn.req : {}
-    if (!text) return conn.reply(m.chat, 'Mau request apa an?', m) 
-    let _name = m.fromMe ? conn.user : conn.contacts[m.sender]
-    let name = _name.vnmae || _name.notify || _name.name || ('+' + _name.jid.split`@`[0])
-    let _text = ('dari *' + name + '*\nNo: *' + m.sender.split`@`[0] + `\n*${command ? 'Request:' : 'Report'} `)
-    let txt = (text)
-    conn.reply(m.chat, 'Pesan Anda sudah terkirim', m)
-    conn.req[m.sender] = {
-        name,
-        text,
-        date: new Date
-    }
-    for (let jid of global.owner.map(v => v.replace(/[^0-9]/g, '') + '@s.whatsapp.net').filter(v => v != conn.user.jid)) {
-       m.reply(_text, jid)
-       m.reply(txt, jid)
-    }
+const data = global.owner.filter(([id, isCreator]) => id && isCreator)//to get owner
+
+  if (/^(re(quest)|req)$/.test(command)) {
+    if (!text) return m.reply("what do you report?")
+
+  var caption = `*REQUEST|PERMINTAAN*
+
+*From:* @${m.sender.split(`@`)[0]}
+_text:_ ${text}
+`.trim()
+
+conn.reply(data.id + "@s.whatsapp.com", caption, m, { mentions: conn.parseMention(caption) })
+
+   } else if (/^(re(port)|bug)$/.test(command)) {
+   if (!text) return m.reply("what do you report?")
+   
+  var caption2 = `*REPORT|LAPORAN*
+
+*From:* @${m.sender.split(`@`)[0]}
+_text:_ ${text}
+`.trim()
+
+conn.reply(data.id + "@s.whatsapp.com", caption2, m, { mentions: conn.parseMention(caption2) })
+  }
 }
 handler.help = ['request', 'report'].map(v => v + '[teks]')
 handler.tags = ['main']
 handler.command = /^(re(quest|port)|req|bug)$/i
+
 export default handler
