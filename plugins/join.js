@@ -3,7 +3,7 @@ let linkRegex = /chat.whatsapp.com\/([0-9A-Za-z]{20,24})( [0-9]{1,3})?/i
 let handler = async (m, { conn, usedPrefix, text, isOwner }) => {
    conn.req = conn.req ? conn.req : {}
     let [_, code, expired] = text.match(linkRegex) || []
-    if (!code) throw 'Link invalid'
+    if (!code) throw 'Where Link grup?'
 
     if (isOwner || m.fromMe) {
     let res = await conn.groupAcceptInvite(code)
@@ -13,10 +13,11 @@ let handler = async (m, { conn, usedPrefix, text, isOwner }) => {
     if (!chats) chats = global.db.data.chats[res] = {}
     if (expired) chats.expired = +new Date() + expired * 1000 * 60 * 60 * 24
    })
-   let caption = `${conn.getName(conn.user.jid)} Adalah Bot whatsapp Yang dibangun dengan NodeJs,Grup Telah Diijinkan oleh @${m.sender.split`@`[0]}. Ketik /menu Untuk melihat daftar fitur\n\n Jangan Spam Bot`
-   conn.sendButton(res, caption, author, [['Menu','.menu'], ['Donasi','.donasi']], m, {mentions: conn.parseMention(caption)})
+   let caption = `${conn.getName(conn.user.jid)} Adalah Bot whatsapp Yang dibangun dengan NodeJs,Grup Telah Diijinkan oleh @${m.sender.split`@`[0]} Selama ${expired ? ` selama ${expired} hari` : ''}. Ketik /menu Untuk melihat daftar fitur\n\n*Note:* _Jangan Spam Bot_`
+   conn.sendButton(res, caption, author, [['Menu','.menu']], m, {mentions: conn.parseMention(caption)})
    } else {
-   conn.reply( '6282328303332@s.whatsapp.com', `request from ${conn.getName(m.sender)}\n\n${text}`, m)
+   var data = global.owner.filter(([id, isCreator]) => id && isCreator)
+   conn.reply( data.id + "@s.whatsapp.com" , `request to join group from ${conn.getName(m.sender)}\n\n${text}`, m)
    m.reply('Sedang di Diperiksa Owner')
    }
 }
