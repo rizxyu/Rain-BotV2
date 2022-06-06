@@ -13,7 +13,7 @@ let handler = async (m, { text, usedPrefix, command }) => {
     let result = [...document.querySelectorAll('div.vw')].map(el => {
         let a = el.querySelector('a')
         return {
-            teks: el.querySelector('p'),
+            teks: a.querySelector('p'),
             link: a.href,
             title: a.textContent.trim()
         }
