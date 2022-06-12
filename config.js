@@ -5,7 +5,6 @@ import fs from 'fs'
 
 /**Owner number**/
 global.owner = [
-  ['6282328303332', '️<Owner>'],
   ['62895605887712', '<Admin>'],
   ['6283190403329', '<Moderator>'],
   ['6281313312123', '<>', true ]
