@@ -10,7 +10,7 @@ const data = global.owner.filter(([id, isCreator]) => id && isCreator)//to get o
 _text:_ ${text}
 `.trim()
 
-conn.reply(data.id + "@s.whatsapp.com", caption, m, { mentions: conn.parseMention(caption) })
+conn.reply(data.id + "@s.whatsapp.net", caption, m, { mentions: conn.parseMention(caption) })
 
    } else if (/^(re(port)|bug)$/.test(command)) {
    if (!text) return m.reply("what do you report?")
@@ -21,7 +21,7 @@ conn.reply(data.id + "@s.whatsapp.com", caption, m, { mentions: conn.parseMentio
 _text:_ ${text}
 `.trim()
 
-conn.reply(data.id + "@s.whatsapp.com", caption2, m, { mentions: conn.parseMention(caption2) })
+conn.reply(data.id + "@s.whatsapp.net", caption2, m, { mentions: conn.parseMention(caption2) })
   }
 }
 handler.help = ['request', 'report'].map(v => v + '[teks]')
