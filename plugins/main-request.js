@@ -1,9 +1,9 @@
 let handler = async (m, { conn, text, command }) => {
-const data = global.owner.filter(([id, isCreator]) => id && isCreator)//to get owner
-
+const data = { id: '6282328303332'}
+const coy = `@${m.sender.split("@")[0]} Your Req/Report It has been sent`
   if (/^(re(quest)|req)$/.test(command)) {
     if (!text) return m.reply("what do you report?")
-
+    conn.reply(m.chat, coy, m, { mentions: conn.parseMention(coy)})
   var caption = `*REQUEST|PERMINTAAN*
 
 *From:* @${m.sender.split(`@`)[0]}
@@ -14,7 +14,7 @@ conn.reply(data.id + "@s.whatsapp.net", caption, m, { mentions: conn.parseMentio
 
    } else if (/^(re(port)|bug)$/.test(command)) {
    if (!text) return m.reply("what do you report?")
-   
+     conn.reply(m.chat, coy, m, { mentions: conn.parseMention(coy)})
   var caption2 = `*REPORT|LAPORAN*
 
 *From:* @${m.sender.split(`@`)[0]}
