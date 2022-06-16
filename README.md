@@ -2,8 +2,6 @@
 
 <p align="center">
 	<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTrF6fyFoGCHmsmOXWjFxIXh-467D1nRhA4mQ&usqp=CAU" width="75%" style="margin-left: auto;margin-right: auto;display: block;">
-
-
 </p>
 <p align="center">
 <a href="#"><img title="RAIN - BOTV2" src="https://img.shields.io/badge/Rainbotv2-green?colorA=%23ff0000&colorB=%23017e40&style=for-the-badge"></a>
@@ -237,3 +235,4 @@ conn.sendButton(m.chat, 'Hello world!', '@BochilGaming', 'https://github.com/Boc
 [![BochilGaming](https://github.com/BochilGaming.png?size=100)](https://github.com/BochilGaming)
 [![Rizxyu](https://github.com/Rizxyu.png?size=100)](https://github.com/Rizxyu)
 [![ibrahKrep](https://github.com/ibrahKrep.png?size=100)](https://github.com/ibrahKrep)
+[![MuhammadRestu999](https://github.com/MuhammadRestu999.png?size=100)](https://github.com/MuhammadRestu999)
