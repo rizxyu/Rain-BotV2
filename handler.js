@@ -1,16 +1,16 @@
 import { smsg } from './lib/simple.js'
+import { plugins } from './lib/plugins.js'
 import { format } from 'util'
 import { fileURLToPath } from 'url'
 import path, { join } from 'path'
 import { unwatchFile, watchFile } from 'fs'
 import chalk from 'chalk'
-import Canvas from "discord-canvas"
-import uploadImage from'./lib/uploadImage.js'
-import fetch from 'node-fetch'
-/**
- * @type {import('@adiwajshing/baileys')}
- */
-const { proto } = (await import('@adiwajshing/baileys')).default
+import Connection from './lib/connection.js'
+import printMessage from './lib/print.js'
+import Helper from './lib/helper.js'
+import db, { loadDatabase } from './lib/database.js'
+
+// const { proto } = (await import('@adiwajshing/baileys')).default
 const isNumber = x => typeof x === 'number' && !isNaN(x)
 const delay = ms => isNumber(ms) && new Promise(resolve => setTimeout(function () {
     clearTimeout(this)
@@ -19,18 +19,18 @@ const delay = ms => isNumber(ms) && new Promise(resolve => setTimeout(function (
 
 /**
  * Handle messages upsert
- * @param {import('@adiwajshing/baileys').BaileysEventMap<unknown>['messages.upsert']} groupsUpdate 
+ * @this {import('./lib/connection').Socket}
+ * @param {import('@adiwajshing/baileys').BaileysEventMap<unknown>['messages.upsert']} chatUpdate
  */
 export async function handler(chatUpdate) {
     this.msgqueque = this.msgqueque || []
     if (!chatUpdate)
         return
-    this.pushMessage(chatUpdate.messages).catch(console.error)
     let m = chatUpdate.messages[chatUpdate.messages.length - 1]
     if (!m)
         return
-    if (global.db.data == null)
-        await global.loadDatabase()
+    if (db.data == null)
+        await loadDatabase()
     try {
         m = smsg(this, m) || m
         if (!m)
@@ -39,9 +39,9 @@ export async function handler(chatUpdate) {
         m.limit = false
         try {
             // TODO: use loop to insert data instead of this
-            let user = global.db.data.users[m.sender]
+            let user = db.data.users[m.sender]
             if (typeof user !== 'object')
-                global.db.data.users[m.sender] = {}
+                db.data.users[m.sender] = {}
             if (user) {
                 if (!isNumber(user.exp))
                     user.exp = 0
@@ -72,16 +72,10 @@ export async function handler(chatUpdate) {
                 if (!('role' in user))
                     user.role = 'Beginner'
                 if (!('autolevelup' in user))
-                    user.autolevelup = false
+                    user.autolevelup = true
 
                 if (!isNumber(user.money))
                     user.money = 0
-                if (!isNumber(user.wallet))
-                    user.wallet = 0
-                if (!isNumber(user.bank))
-                    user.bank = 0
-                if (!isNumber(user.net))
-                    user.net = 0
                 if (!isNumber(user.health))
                     user.health = 100
                 if (!isNumber(user.limit))
@@ -229,15 +223,15 @@ export async function handler(chatUpdate) {
               if (!isNumber(user.strength))
                     user.strength = 0
               if (!isNumber(user.mana))
-                    user.mana = 0
+                    user.mana = 50
               if (!isNumber(user.stamina))
-                    user.stamina = 0
+                    user.stamina = 50
               if (!isNumber(user.agility))
-                    user.agility = 0
+                    user.agility = 50
               if (!isNumber(user.intelligence))
-                    user.intelligence = 0
+                    user.intelligence = 10
             } else
-                global.db.data.users[m.sender] = {
+                db.data.users[m.sender] = {
                     exp: 0,
                     limit: 10,
                     lastclaim: 0,
@@ -251,12 +245,9 @@ export async function handler(chatUpdate) {
                     warn: 0,
                     level: 0,
                     role: 'Beginner',
-                    autolevelup: false,
+                    autolevelup: true,
 
                     money: 0,
-                    net: 0,
-                    wallet: 0,
-                    bank: 0,
                     health: 100,
                     limit: 100,
                     potion: 10,
@@ -328,7 +319,6 @@ export async function handler(chatUpdate) {
                     
                     crystal: 0,
                     gems: 0,
-                    
                     magicwand: 0,
                     magicwanddurability: 0,
                     arc: 0,
@@ -342,16 +332,15 @@ export async function handler(chatUpdate) {
                     stamina: 100,
                     agility: 16,
                     intelligence: 10,
-                    
                 }
-            let chat = global.db.data.chats[m.chat]
+            let chat = db.data.chats[m.chat]
             if (typeof chat !== 'object')
-                global.db.data.chats[m.chat] = {}
+                db.data.chats[m.chat] = {}
             if (chat) {
                 if (!('isBanned' in chat))
                     chat.isBanned = false
                 if (!('welcome' in chat))
-                    chat.welcome = true
+                    chat.welcome = false
                 if (!('detect' in chat))
                     chat.detect = false
                 if (!('sWelcome' in chat))
@@ -364,48 +353,39 @@ export async function handler(chatUpdate) {
                     chat.sDemote = ''
                 if (!('delete' in chat))
                     chat.delete = true
-                
                 if (!('antiLink' in chat))
                     chat.antiLink = false
                 if (!('viewonce' in chat))
-                    chat.viewonce = true
+                    chat.viewonce = false
                 if (!('antiToxic' in chat))
                     chat.antiToxic = false
                 if (!isNumber(chat.expired))
                     chat.expired = 0
-               if (!('getmsg' in chat)) 
-                    chat.getmsg = true
-         
             } else
-                global.db.data.chats[m.chat] = {
+                db.data.chats[m.chat] = {
                     isBanned: false,
-                    welcome: true,
+                    welcome: false,
                     detect: false,
                     sWelcome: '',
                     sBye: '',
                     sPromote: '',
                     sDemote: '',
-                   
                     delete: true,
                     antiLink: false,
-                    viewonce: true,
+                    viewonce: false,
                     antiToxic: true,
                     expired: 0,
-                    getmsg: true,
                 }
-            let settings = global.db.data.settings[this.user.jid]
-            if (typeof settings !== 'object') global.db.data.settings[this.user.jid] = {}
+            let settings = db.data.settings[this.user.jid]
+            if (typeof settings !== 'object') db.data.settings[this.user.jid] = {}
             if (settings) {
                 if (!('self' in settings)) settings.self = false
                 if (!('autoread' in settings)) settings.autoread = false
-                if (!('restrict' in settings)) settings.restrict = true
-                if (!'jadibot' in settings) settings.jadibot = true
-             
-            } else global.db.data.settings[this.user.jid] = {
+                if (!('restrict' in settings)) settings.restrict = false
+            } else db.data.settings[this.user.jid] = {
                 self: false,
                 autoread: false,
-                jadibot: true,
-                restrict: true
+                restrict: false
             }
         } catch (e) {
             console.error(e)
@@ -423,7 +403,7 @@ export async function handler(chatUpdate) {
         if (typeof m.text !== 'string')
             m.text = ''
 
-        const isROwner = [conn.decodeJid(global.conn.user.id), ...global.owner.map(([number]) => number)].map(v => v.replace(/[^0-9]/g, '') + '@s.whatsapp.net').includes(m.sender)
+        const isROwner = [this.decodeJid(this.user.id), ...global.owner.map(([number]) => number)].map(v => v?.replace(/[^0-9]/g, '') + '@s.whatsapp.net').includes(m.sender)
         const isOwner = isROwner || m.fromMe
         const isMods = isOwner || global.mods.map(v => v.replace(/[^0-9]/g, '') + '@s.whatsapp.net').includes(m.sender)
         const isPrems = isROwner || global.prems.map(v => v.replace(/[^0-9]/g, '') + '@s.whatsapp.net').includes(m.sender)
@@ -443,19 +423,19 @@ export async function handler(chatUpdate) {
         m.exp += Math.ceil(Math.random() * 10)
 
         let usedPrefix
-        let _user = global.db.data && global.db.data.users && global.db.data.users[m.sender]
+        let _user = db.data && db.data.users && db.data.users[m.sender]
 
-        const groupMetadata = (m.isGroup ? ((conn.chats[m.chat] || {}).metadata || await this.groupMetadata(m.chat).catch(_ => null)) : {}) || {}
+        const groupMetadata = (m.isGroup ? await Connection.store.fetchGroupMetadata(m.chat, this.groupMetadata) : {}) || {}
         const participants = (m.isGroup ? groupMetadata.participants : []) || []
-        const user = (m.isGroup ? participants.find(u => conn.decodeJid(u.id) === m.sender) : {}) || {} // User Data
-        const bot = (m.isGroup ? participants.find(u => conn.decodeJid(u.id) == this.user.jid) : {}) || {} // Your Data
+        const user = (m.isGroup ? participants.find(u => this.decodeJid(u.id) === m.sender) : {}) || {} // User Data
+        const bot = (m.isGroup ? participants.find(u => this.decodeJid(u.id) == this.user.jid) : {}) || {} // Your Data
         const isRAdmin = user?.admin == 'superadmin' || false
         const isAdmin = isRAdmin || user?.admin == 'admin' || false // Is User Admin?
         const isBotAdmin = bot?.admin || false // Are you Admin?
 
         const ___dirname = path.join(path.dirname(fileURLToPath(import.meta.url)), './plugins')
-        for (let name in global.plugins) {
-            let plugin = global.plugins[name]
+        for (let name in plugins) {
+            let plugin = plugins[name]
             if (!plugin)
                 continue
             if (plugin.disabled)
@@ -472,7 +452,7 @@ export async function handler(chatUpdate) {
                     // if (typeof e === 'string') continue
                     console.error(e)
                     for (let [jid] of global.owner.filter(([number, _, isDeveloper]) => isDeveloper && number)) {
-                        let data = (await conn.onWhatsApp(jid))[0] || {}
+                        let data = (await this.onWhatsApp(jid))[0] || {}
                         if (data.exists)
                             m.reply(`*Plugin:* ${name}\n*Sender:* ${m.sender}\n*Chat:* ${m.chat}\n*Command:* ${m.text}\n\n\`\`\`${format(e)}\`\`\``.trim(), data.jid)
                     }
@@ -484,7 +464,7 @@ export async function handler(chatUpdate) {
                     continue
                 }
             const str2Regex = str => str.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&')
-            let _prefix = plugin.customPrefix ? plugin.customPrefix : conn.prefix ? conn.prefix : global.prefix
+            let _prefix = plugin.customPrefix ? plugin.customPrefix : this.prefix ? this.prefix : global.prefix
             let match = (_prefix instanceof RegExp ? // RegExp Mode?
                 [[_prefix.exec(m.text), _prefix]] :
                 Array.isArray(_prefix) ? // Array?
@@ -542,9 +522,9 @@ export async function handler(chatUpdate) {
                 if (!isAccept)
                     continue
                 m.plugin = name
-                if (m.chat in global.db.data.chats || m.sender in global.db.data.users) {
-                    let chat = global.db.data.chats[m.chat]
-                    let user = global.db.data.users[m.sender]
+                if (m.chat in db.data.chats || m.sender in db.data.users) {
+                    let chat = db.data.chats[m.chat]
+                    let user = db.data.users[m.sender]
                     if (name != 'owner-unbanchat.js' && chat?.isBanned)
                         return // Except this
                     if (name != 'owner-unbanuser.js' && user?.banned)
@@ -594,12 +574,12 @@ export async function handler(chatUpdate) {
                     m.reply('Ngecit -_-') // Hehehe
                 else
                     m.exp += xp
-                if (!isPrems && plugin.limit && global.db.data.users[m.sender].limit < plugin.limit * 1) {
+                if (!isPrems && plugin.limit && db.data.users[m.sender].limit < plugin.limit * 1) {
                     this.reply(m.chat, `Limit anda habis, silahkan beli melalui *${usedPrefix}buy*`, m)
                     continue // Limit habis
                 }
                 if (plugin.level > _user.level) {
-                    this.sendButton(m.chat, `diperlukan level *${plugin.level}* untuk menggunakan perintah ini. Level kamu *${_user.level}🎋*\n*${plugin.level}* level is required to use this command. Your level is *${_user.level}🎋*`, author, null,[["Ok", "ok"]] , m)
+                    this.reply(m.chat, `diperlukan level ${plugin.level} untuk menggunakan perintah ini. Level kamu ${_user.level}`, m)
                     continue // If the level has not been reached
                 }
                 let extra = {
@@ -639,7 +619,7 @@ export async function handler(chatUpdate) {
                             text = text.replace(new RegExp(key, 'g'), '#HIDDEN#')
                         if (e.name)
                             for (let [jid] of global.owner.filter(([number, _, isDeveloper]) => isDeveloper && number)) {
-                                let data = (await conn.onWhatsApp(jid))[0] || {}
+                                let data = (await this.onWhatsApp(jid))[0] || {}
                                 if (data.exists)
                                     m.reply(`*Plugin:* ${m.plugin}\n*Sender:* ${m.sender}\n*Chat:* ${m.chat}\n*Command:* ${usedPrefix}${command} ${args.join(' ')}\n\n\`\`\`${text}\`\`\``.trim(), data.jid)
                             }
@@ -668,10 +648,10 @@ export async function handler(chatUpdate) {
             if (quequeIndex !== -1)
                 this.msgqueque.splice(quequeIndex, 1)
         }
-        //console.log(global.db.data.users[m.sender])
-        let user, stats = global.db.data.stats
+        //console.log(db.data.users[m.sender])
+        let user, stats = db.data.stats
         if (m) {
-            if (m.sender && (user = global.db.data.users[m.sender])) {
+            if (m.sender && (user = db.data.users[m.sender])) {
                 user.exp += m.exp
                 user.limit -= m.limit * 1
             }
@@ -706,84 +686,53 @@ export async function handler(chatUpdate) {
         }
 
         try {
-            if (!opts['noprint']) await (await import(`./lib/print.js`)).default(m, this)
+            if (!opts['noprint']) await printMessage(m, this)
         } catch (e) {
             console.log(m, m.quoted, e)
         }
         if (opts['autoread'])
-            await this.chatRead(m.chat, m.isGroup ? m.sender : undefined, m.id || m.key.id).catch(() => { })
+           await this.readMessages([m.key])
+
     }
 }
 
 /**
  * Handle groups participants update
+ * @this {import('./lib/connection').Socket}
  * @param {import('@adiwajshing/baileys').BaileysEventMap<unknown>['group-participants.update']} groupsUpdate 
  */
 export async function participantsUpdate({ id, participants, action }) {
     if (opts['self'])
         return
-    // if (id in conn.chats) return // First login will spam
     if (this.isInit)
         return
-    if (global.db.data == null)
+    if (db.data == null)
         await loadDatabase()
-    let chat = global.db.data.chats[id] || {}
+    let chat = db.data.chats[id] || {}
     let text = ''
     switch (action) {
         case 'add':
         case 'remove':
             if (chat.welcome) {
-                let groupMetadata = await this.groupMetadata(id) || (conn.chats[id] || {}).metadata
+                let groupMetadata = await Connection.store.fetchGroupMetadata(id, this.groupMetadata)
                 for (let user of participants) {
-                    let pp = await this.profilePictureUrl(user).catch(_ => './src/avatar_contact.png')
-                  //How fo fix
+                    let pp = './src/avatar_contact.png'
                     try {
+                        pp = await this.profilePictureUrl(user, 'image')
                     } catch (e) {
                     } finally {
-                        text = (action === 'add' ? (chat.sWelcome || this.welcome || conn.welcome || 'Welcome, @user!').replace('@subject', await this.getName(id)).replace('@desc', groupMetadata.desc?.toString() || 'unknow') :
-                            (chat.sBye || this.bye || conn.bye || 'Bye, @user!')).replace('@user', '@' + user.split('@')[0])
-                       
-  let lea = await new Canvas.Goodbye()
-  .setUsername(`${await conn.getName(user)}`)
-  .setDiscriminator(`337631`)
-  .setMemberCount(`${groupMetadata.participants.length}`)
-  .setGuildName(`${groupMetadata.subject}`)
-  .setAvatar(`${pp}`)
-  .setColor("border", "#000000")
-  .setColor("username-box", "#000000")
-  .setColor("discriminator-box", "#000000")
-  .setColor("message-box", "#000000")
-  .setColor("title", "#ffffff")
-  .setColor("avatar", "#000000")
-  .setBackground("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSaBCkFVUY0nJxj1DPqtvAwrf7qfvj6e-Rv-A&usqp=CAU")
-  .toAttachment();
-  var buffo = await lea.toBuffer()
-
- let wel = await new Canvas.Welcome()
-  .setUsername(`${await conn.getName(user)}`)
-  .setDiscriminator(`445577`)
-  .setMemberCount(`${groupMetadata.participants.length}`)
-  .setGuildName(`${groupMetadata.subject}`)
-  .setAvatar(`${pp}`)
-  .setColor("border", "#000000")
-  .setColor("username-box", "#000000")
-  .setColor("discriminator-box", "#000000")
-  .setColor("message-box", "#000000")
-  .setColor("title", "#ffffff")
-  .setColor("avatar", "#000000")
-  .setBackground("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSF7c3n7snGnpzS676fXaU2yxSjGsFNrCURXw&usqp=CAU")
-  .toAttachment();
-  var buffa = await wel.toBuffer()
-                        this.sendButton(id, text, author, action === 'add' ? wel.toBuffer() : lea.toBuffer(), [["Menu", ".menu"]], null, false, { mentions: [user] })
+                        text = (action === 'add' ? (chat.sWelcome || this.welcome || Connection.conn.welcome || 'Welcome, @user!').replace('@subject', await this.getName(id)).replace('@desc', groupMetadata.desc?.toString() || 'unknow') :
+                            (chat.sBye || this.bye || Connection.conn.bye || 'Bye, @user!')).replace('@user', '@' + user.split('@')[0])
+                        this.sendFile(id, pp, 'pp.jpg', text, null, false, { mentions: [user] })
                     }
                 }
             }
             break
         case 'promote':
-            text = (chat.sPromote || this.spromote || conn.spromote || '@user ```is now Admin```')
+            text = (chat.sPromote || this.spromote || Connection.conn.spromote || '@user ```is now Admin```')
         case 'demote':
             if (!text)
-                text = (chat.sDemote || this.sdemote || conn.sdemote || '@user ```is no longer Admin```')
+                text = (chat.sDemote || this.sdemote || Connection.conn.sdemote || '@user ```is no longer Admin```')
             text = text.replace('@user', '@' + participants[0].split('@')[0])
             if (chat.detect)
                 this.sendMessage(id, { text, mentions: this.parseMention(text) })
@@ -793,6 +742,7 @@ export async function participantsUpdate({ id, participants, action }) {
 
 /**
  * Handle groups update
+ * @this {import('./lib/connection').Socket}
  * @param {import('@adiwajshing/baileys').BaileysEventMap<unknown>['groups.update']} groupsUpdate 
  */
 export async function groupsUpdate(groupsUpdate) {
@@ -801,60 +751,66 @@ export async function groupsUpdate(groupsUpdate) {
     for (const groupUpdate of groupsUpdate) {
         const id = groupUpdate.id
         if (!id) continue
-        let chats = global.db.data.chats[id], text = ''
+        let chats = db.data.chats[id], text = ''
         if (!chats?.detect) continue
-        if (groupUpdate.desc) text = (chats.sDesc || this.sDesc || conn.sDesc || '```Description has been changed to```\n@desc').replace('@desc', groupUpdate.desc)
-        if (groupUpdate.subject) text = (chats.sSubject || this.sSubject || conn.sSubject || '```Subject has been changed to```\n@subject').replace('@subject', groupUpdate.subject)
-        if (groupUpdate.icon) text = (chats.sIcon || this.sIcon || conn.sIcon || '```Icon has been changed to```').replace('@icon', groupUpdate.icon)
-        if (groupUpdate.revoke) text = (chats.sRevoke || this.sRevoke || conn.sRevoke || '```Group link has been changed to```\n@revoke').replace('@revoke', groupUpdate.revoke)
+        if (groupUpdate.desc) text = (chats.sDesc || this.sDesc || Connection.conn.sDesc || '```Description has been changed to```\n@desc').replace('@desc', groupUpdate.desc)
+        if (groupUpdate.subject) text = (chats.sSubject || this.sSubject || Connection.conn.sSubject || '```Subject has been changed to```\n@subject').replace('@subject', groupUpdate.subject)
+        if (groupUpdate.icon) text = (chats.sIcon || this.sIcon || Connection.conn.sIcon || '```Icon has been changed to```').replace('@icon', groupUpdate.icon)
+        if (groupUpdate.revoke) text = (chats.sRevoke || this.sRevoke || Connection.conn.sRevoke || '```Group link has been changed to```\n@revoke').replace('@revoke', groupUpdate.revoke)
         if (!text) continue
         await this.sendMessage(id, { text, mentions: this.parseMention(text) })
     }
 }
 
+/**
+ * @this {import('./lib/connection').Socket}
+ * @param {import('@adiwajshing/baileys').BaileysEventMap<unknown>['messages.delete']} message 
+ */
 export async function deleteUpdate(message) {
-    try {
-        const { fromMe, id, participant } = message
-        if (fromMe)
-            return
-        let msg = this.serializeM(this.loadMessage(id))
-        if (!msg)
-            return
-        let chat = global.db.data.chats[msg.chat] || {}
-        if (chat.delete)
-            return
-        await this.reply(msg.chat, `
+    if (message.keys && Array.isArray(message.keys)) {
+        try {
+            for (const key of message.keys) {
+                if (key.fromMe) continue
+                const msg = Connection.store.loadMessage(key.id)
+                if (!msg) continue
+                let chat = db.data.chats[msg.key.remoteJid]
+                if (!chat || chat.delete) continue
+                const participant = msg.participant || msg.key.participant || msg.key.remoteJid
+                await this.reply(msg.key.remoteJid, `
 Terdeteksi @${participant.split`@`[0]} telah menghapus pesan
 Untuk mematikan fitur ini, ketik
 *.enable delete*
 `.trim(), msg, {
-            mentions: [participant]
-        })
-        this.copyNForward(msg.chat, msg).catch(e => console.log(e, msg))
-    } catch (e) {
-        console.error(e)
+                    mentions: [participant]
+                })
+                this.copyNForward(msg.key.remoteJid, msg).catch(e => console.log(e, msg))
+            }
+        } catch (e) {
+            console.error(e)
+        }
     }
 }
 
+
 global.dfail = (type, m, conn) => {
     let msg = {
-        rowner: '*AKSES DITOLAK*\nPerintah ini hanya dapat digunakan oleh _*OWWNER!1!1!*_',
-        owner: '*AKSES DITOLAK*\nPerintah ini hanya dapat digunakan oleh _*Owner Bot*_!',
-        mods: '*AKSES DITOLAK*\nPerintah ini hanya dapat digunakan oleh _*Moderator*_ !',
-        premium: '*AKSES DITOLAK*\nPerintah ini hanya untuk member _*Premium*_ !',
-        group: '*AKSES DITOLAK*\nPerintah ini hanya dapat digunakan di grup!',
-        private: '*AKSES DITOLAK*\nPerintah ini hanya dapat digunakan di Chat Pribadi!',
-        admin: '*AKSES DITOLAK*\nPerintah ini hanya untuk *Admin* grup!',
-        botAdmin: '*AKSES DITOLAK*\nJadikan bot sebagai *Admin* untuk menggunakan perintah ini!',
-        unreg: '*AKSES DITOLAK*\nSilahkan daftar untuk menggunakan fitur ini dengan cara mengetik:\n\n*#daftar nama.umur*\n\nContoh: *#daftar Manusia.16*',
+        rowner: 'Perintah ini hanya dapat digunakan oleh _*OWWNER!1!1!*_',
+        owner: 'Perintah ini hanya dapat digunakan oleh _*Owner Bot*_!',
+        mods: 'Perintah ini hanya dapat digunakan oleh _*Moderator*_ !',
+        premium: 'Perintah ini hanya untuk member _*Premium*_ !',
+        group: 'Perintah ini hanya dapat digunakan di grup!',
+        private: 'Perintah ini hanya dapat digunakan di Chat Pribadi!',
+        admin: 'Perintah ini hanya untuk *Admin* grup!',
+        botAdmin: 'Jadikan bot sebagai *Admin* untuk menggunakan perintah ini!',
+        unreg: 'Silahkan daftar untuk menggunakan fitur ini dengan cara mengetik:\n\n*#daftar nama.umur*\n\nContoh: *#daftar Manusia.16*',
         restrict: 'Fitur ini di *disable*!'
     }[type]
-    if (msg) return conn.sendHydrated2(m.chat, msg, author, `${logo}`, `${webs}`, "Website", `${gcwangsaf}`, "GROUP WHATSAPP", [["Owner", ".donasi"]], m)
+    if (msg) return m.reply(msg)
 }
 
-let file = global.__filename(import.meta.url, true)
+let file = Helper.__filename(import.meta.url, true)
 watchFile(file, async () => {
     unwatchFile(file)
     console.log(chalk.redBright("Update 'handler.js'"))
-    if (global.reloadHandler) console.log(await global.reloadHandler())
+    if (Connection.reload) console.log(await Connection.reload(await Connection.conn))
 })
