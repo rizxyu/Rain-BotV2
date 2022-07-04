@@ -24,7 +24,8 @@ global.APIs = { // API Prefix
   zeks: 'https://api.zeks.xyz',
   pencarikode: 'https://pencarikode.xyz',
   LeysCoder: 'https://leyscoders-api.herokuapp.com',
-  zenz: 'https://zenzapis.xyz'
+  zenz: 'https://zenzapis.xyz',
+  skyz: 'https://skyz-api.herokuapp.com/'
 }
 global.APIKeys = { // APIKey Here
   // 'https://website': 'apikey'
