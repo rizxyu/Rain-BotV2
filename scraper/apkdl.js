@@ -14,4 +14,4 @@ async function apkDl(url) {
 	let mimetype = (await fetch(download, { method: 'head' })).headers.get('content-type')
 	return { fileName, mimetype, download }
 }
-export default handler
+export default apkDl
